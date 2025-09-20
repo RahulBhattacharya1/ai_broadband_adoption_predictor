@@ -152,9 +152,14 @@ feat_geo = build_features_for_geo(geo_df)
 # latest row that has at least previous value
 latest_row = feat_geo.dropna(subset=["value_prev"]).tail(1)
 if latest_row.empty:
-    st.warning("Not enough history to form features for this country.")
+    st.warning("Not enough history to form full features. Showing baseline estimate.")
+    last = geo_df.tail(1).iloc[0]
+    next_year = int(last["year"]) + 1
+    baseline_pred = last["value"]  # repeat last year
+    st.metric(f"Baseline prediction for {next_year}", f"{baseline_pred:.2f}%")
     st.dataframe(geo_df)
     st.stop()
+
 
 r = latest_row.iloc[0]
 pred_next = portable_predict(
